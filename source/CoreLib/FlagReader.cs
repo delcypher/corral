@@ -74,7 +74,10 @@ namespace cba
         public static bool isFlag(string str)
         {
             Debug.Assert(str != null && str != "");
-            return str[0] == '/';
+            // We have to be careful here to not consider UNIX
+            // style paths as a flag. This won't ever be perfect
+            // because there will always be ambiguities.
+            return str[0] == '/' && !str.EndsWith(".bpl");
         }
 
         // Read flags from a file
