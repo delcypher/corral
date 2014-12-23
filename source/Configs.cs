@@ -149,41 +149,21 @@ namespace cba
 
         public static Configs parseCommandLine(string[] args)
         {
-            var inputFlags = FlagReader.read(args);
-
-            // Go through flags and find the bpl file and 
-            // other flags
-
             string inputFile = null;
-
-            List<string> flags = new List<string>();
-
-            foreach (var str in inputFlags)
-            {
-                if (FlagReader.isFlag(str))
-                {
-                    flags.Add(str);
-                    continue;
-                }
-
-                if (str.EndsWith(".bpl"))
-                {
-                    if (inputFile != null)
-                    {
-                        throw new UsageError(string.Format("Multiple input files given: {0} and {1}", inputFile, str));
-                    }
-
-                    inputFile = str;
-                    continue;
-                }
-
-                throw new UsageError("Unknown argument: " + str);
-            }
-
-            if (inputFile == null)
+            if (args.Length == 0)
             {
                 throw new UsageError("Input file not given");
             }
+
+            // The first argument must be the bpl file
+            if (!(args[0].EndsWith (".bpl")))
+            {
+                throw new UsageError("The first argument must be the input bpl file");
+            }
+            inputFile = args[0];
+
+            // Assume the rest of the arguments are flags
+            var flags = FlagReader.read(args.Skip(1).ToList());
 
             Configs config = new Configs();
             config.inputFile = inputFile;

@@ -14,40 +14,33 @@ namespace cba
         // Reads the set of flags supplied on the command line. Normalizes
         // them and returns the list of flags in the order they should be 
         // processed.
-        public static List<string> read(string[] args)
+        public static List<string> read(List<string> args)
         {
             var ret = new List<string>();
             foreach (var str in args)
             {
                 if (!isFlag(str))
                 {
-                    // Must be a file name
-                    if (!str.EndsWith(".bpl"))
+                    throw new UsageError(string.Format("Unrecognised flag \"{0}\"", str));
+                }
+
+                if (str.StartsWith("/flags:"))
+                {
+                    var delimit = new char[1];
+                    delimit[0] = ':';
+                    var split = str.Split(delimit);
+                    try
                     {
-                        throw new UsageError("Unknown command line argument: " + str);
+                        ret.AddRange(readFile(split[1]));
                     }
-                    ret.Add(str);
+                    catch (Exception e)
+                    {
+                        throw new UsageError(e.Message);
+                    }
                 }
                 else
                 {
-                    if (str.StartsWith("/flags:"))
-                    {
-                        var delimit = new char[1];
-                        delimit[0] = ':';
-                        var split = str.Split(delimit);
-                        try
-                        {
-                            ret.AddRange(readFile(split[1]));
-                        }
-                        catch (Exception e)
-                        {
-                            throw new UsageError(e.Message);
-                        }
-                    }
-                    else
-                    {
-                        ret.Add(str);
-                    }
+                    ret.Add(str);
                 }
             }
 
